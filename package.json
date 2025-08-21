@@ -1,21 +1,18 @@
 {
-   "name": "thinkboard-backend",
-  "type": "module",
+  "name": "thinkboard-backend",
+  "private": true,
   "version": "1.0.0",
-  "main": "src/server.js",
-   "scripts": {
-    "dev": "node server.js"
-  },
+  "type": "module",
+  "main": "server.js",
   "engines": { "node": "18.x" },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
+  "scripts": {
+    "dev": "nodemon server.js",
+    "start": "node server.js"
+  },
   "dependencies": {
     "express": "^4.19.2",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
-    "mern-thinkboard": "file:..",
     "mongoose": "^8.17.1"
   },
   "devDependencies": {
