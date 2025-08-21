@@ -1,45 +1,30 @@
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
-
-import notesRoute from "./routes/notesRoute.js";
 import { connectDB } from "./config/db.js";
+import notesRoute from "./routes/notesRoute.js";
 
 dotenv.config();
 
 const app = express();
-
-// ---------- Middleware ----------
 app.use(express.json());
 
-const allowedOrigins = [
-  "http://localhost:5173"
-];
-if (process.env.FRONTEND_URL) {
-  allowedOrigins.push(process.env.FRONTEND_URL);
-}
-app.use(
-  cors({
-    origin: allowedOrigins,
-    credentials: true,
-  })
-);
+// CORS
+const allowed = "http://localhost:5173";
+if (process.env.FRONTEND_URL) allowed.push(process.env.FRONTEND_URL);
+app.use(cors({ origin: allowed, credentials: true }));
 
-// ---------- Routes ----------
-app.get("/", (req, res) => {
-  res.json({ ok: true, message: "API running" });
-});
+// Routes
+app.get("/", (req, res) => res.json({ ok: true, message: "API running" }));
 app.use("/api/notes", notesRoute);
 
+// DB connect (cold start)
 await connectDB();
 
-
+// Local dev only
 if (process.env.NODE_ENV !== "production") {
   const PORT = process.env.PORT || 5001;
-  app.listen(PORT, () => {
-    console.log("Local dev server on", PORT);
-  });
+  app.listen(PORT, () => console.log("Local dev server on", PORT));
 }
-
 
 export default app;
