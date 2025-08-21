@@ -1,41 +1,45 @@
 import express from "express";
 import dotenv from "dotenv";
-import cors from "cors"
-import path from "path"
+import cors from "cors";
 
 import notesRoute from "./routes/notesRoute.js";
-import {connectDB} from "./config/db.js";
+import { connectDB } from "./config/db.js";
 
 dotenv.config();
-const app= express();
-const PORT=process.env.PORT || 5001;
-const __dirname=path.resolve()
 
+const app = express();
 
-//middleware
+// ---------- Middleware ----------
 app.use(express.json());
-if(process.env.NODE_ENV !== "production"){
-  app.use(
-      cors({
-        origin: ["http://localhost:5173", "http://127.0.0.1:5173"],
-      }
-  ));
+
+const allowedOrigins = [
+  "http://localhost:5173"
+];
+if (process.env.FRONTEND_URL) {
+  allowedOrigins.push(process.env.FRONTEND_URL);
+}
+app.use(
+  cors({
+    origin: allowedOrigins,
+    credentials: true,
+  })
+);
+
+// ---------- Routes ----------
+app.get("/", (req, res) => {
+  res.json({ ok: true, message: "API running" });
+});
+app.use("/api/notes", notesRoute);
+
+await connectDB();
+
+
+if (process.env.NODE_ENV !== "production") {
+  const PORT = process.env.PORT || 5001;
+  app.listen(PORT, () => {
+    console.log("Local dev server on", PORT);
+  });
 }
 
-app.use("/api/notes", notesRoute);
-if(process.env.NODE_ENV === "production"){
-  app.use(express.static(path.join(__dirname,"../frontend/dist")))
-  app.get("*",(req,res)=>{
-    res.sendFile(path.join(__dirname,"../frontend","dist","index.html"))
-  });
-}
-connectDB()
-  .then(() => {
-    app.listen(PORT, () => {
-      console.log("MONGODB CONNECTED & Server started on PORT:", PORT);
-    });
-  })
-  .catch((err) => {
-    console.error("DB connection failed:", err.message);
-    process.exit(1);
-  });
+
+export default app;
